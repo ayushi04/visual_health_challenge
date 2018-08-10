@@ -24,7 +24,7 @@ class generateCustomMatrix:
     def getBitList(self): #PRINTING THE BITLIST
         return str(self.bits)
 
-    def getKNNmatrix(self,sorted_data,row,col,b1,knn=10): #CREATES KNN MATRIX
+    def getKNNmatrix(self,sorted_data,row,b1,knn=10): #CREATES KNN MATRIX
         b1=b1[b1.find("(")+1:b1.find(")")]
         b1=b1.split(",")
         for i in range(len(b1)):
@@ -42,8 +42,9 @@ class generateCustomMatrix:
     #MAIN METHOD FOR CREATING CUSTOME HEIDI MATRIX. IT PARSES ALL THE STRINGS IN "bits" LIST
     #AND CREATES CUSTOM BIT MATRIX   
     global gl
-    def generateCustomHeidiMatrix(self,sorted_data,row,col,knn=10):
+    def generateCustomHeidiMatrix(self,sorted_data,knn=10):
         global gl
+        row=sorted_data.shape[0]
         matrix=np.zeros(shape=(row,row),dtype=np.uint64)
         factor=1
         count=0
@@ -52,7 +53,7 @@ class generateCustomMatrix:
             #OPTION1 : KNN(X)
             if("KNN" in b1):
                 print('b1',b1)
-                temp=self.getKNNmatrix(sorted_data,row,col,b1,knn)
+                temp=self.getKNNmatrix(sorted_data,row,b1,knn)
                 matrix=matrix + temp*factor
                 factor=factor*2
                 bit_subspace[count]=b1
@@ -64,7 +65,28 @@ class generateCustomMatrix:
                 if(len(ml)==3):
                     x=sorted_data.iloc[:,int(ml[0])].values
                     y=sorted_data.iloc[:,int(ml[2])].values
-                    temp=[[eval(str(x[i])+ml[1]+str(y[j])) for i in range(len(x))] for j in range(len(y))]
+                    print(x.shape,y.shape,x)
+                    left=np.zeros((row,1))
+                    left[:,0]=x
+                    #left=left.transpose()
+                    left=np.repeat(left,row,axis=1)
+                    right=np.zeros((row,1))
+                    right[:,0]=y
+                    right=right.transpose()
+                    right=np.repeat(right,row,axis=0)
+                    if ml[1]=='>':
+                        temp=left>right
+                    if ml[1]=='<':
+                        temp=left<right
+                    if ml[1]=='>=':
+                        temp=left>=right
+                    if ml[1]=='<=':
+                        temp=left<=right
+                    if ml[1]=='!=':
+                        temp=left!=right
+                    if ml[1]=='==':
+                        temp=left==right
+                    #temp=[[eval(str(x[i])+ml[1]+str(y[j])) for i in range(len(x))] for j in range(len(y))]
                     temp=np.array(temp,dtype=np.uint8)
                     matrix=matrix + temp*factor
                     factor=factor*2
@@ -103,15 +125,17 @@ class generateCustomMatrix:
 
 
 if __name__=='__main__':
-    fpath='./static/default/blobs_3d_5c_1000/blobs_3d_5c_1000.csv'
-    feature_vector,classLabel_numeric,class_label_dict,fv_dict, row, col=gm.readDataset(fpath,"yes")
-    feature_vector.loc[:,'classLabel']=classLabel_numeric    
-    feature_vector.loc[:,'classLabel_orig']=classLabel_numeric
+    #fpath='./static/default/blobs_3d_5c_1000/blobs_3d_5c_1000.csv'
+    #feature_vector,classLabel_numeric,class_label_dict,fv_dict, row, col=gm.readDataset(fpath,"yes")
+    #feature_vector.loc[:,'classLabel']=classLabel_numeric    
+    #feature_vector.loc[:,'classLabel_orig']=classLabel_numeric
+    feature_vector=pd.DataFrame([[1,2,3],[4,5,6],[7,8,9]])
+    print(feature_vector)
     c= generateCustomMatrix()
-    c.appendToBitList(['KNN(1)'])
-    c.appendToBitList(['KNN(2)'])
+    #c.appendToBitList(['KNN(1)'])
+    #c.appendToBitList(['KNN(2)'])
     c.appendToBitList(['1>1'])
-    c.appendToBitList(['1+2>1'])
+    #c.appendToBitList(['1+2>1'])
     print(c.getBitList())
-    matrix,bs=c.generateCustomHeidiMatrix(feature_vector,row,col)
+    matrix,bs=c.generateCustomHeidiMatrix(feature_vector)
     print(matrix)
