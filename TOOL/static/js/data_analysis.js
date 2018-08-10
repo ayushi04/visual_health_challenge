@@ -33,22 +33,26 @@ function dynamicallyLoadSelectList(divId,datasetPath) {
 function updateImage() {
   console.log('---updateImage---');
   var equations = [];
-  //$(".dim:checked").each(function() {
-  //  dimList.push($(this).val());
-  //});
-  //dimList = dimList.join(' ');
+  var panel=$('#bitvector');
+  var inputs=panel.find('input');
+  for (var i=0;i<inputs.length;i++) {
+    if(inputs[i].value!='')
+      equations.push(inputs[i].value);
+  }
+  equations = equations.join(',');
   $('#loading').html("<img src={{ url_for('static',filename='loading.gif') }}> loading...");
+  console.log(equations);
   $.ajax({
-    url:"/image"
+    url:"/image",
     data: {
-      equation: equations,
-      datasetpath: datasetPath
+      equations: equations,
+      datasetPath: datasetPath
     },
     contentType: 'application/json; charset=utf-8',
     success: function(result) {
       console.log(result);
       //$("html").empty();
-      $("html").append(result);
+      //$("html").append(result);
     },
      error: function(error) {
                 console.log('ERROR',error);

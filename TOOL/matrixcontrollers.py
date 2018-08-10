@@ -25,6 +25,19 @@ def PrintException():
 
 mod_matrixcontrollers = Blueprint('matrixcontrollers', __name__)
 
-@mod_matrixcontrollers.route('/image',methods=['POST'])
+@mod_matrixcontrollers.route('/image',methods=['POST','GET'])
 def image():
-	return json.dumps({'output':str(123),'subspace':str("123")})
+	print('----matrixcontrollers: image---')
+	try:
+		datasetName=request.args.get('datasetPath')
+		equations=request.args.get('equations')
+		print('INPUT PARAMS : datasetPath: %s, equations: %s' %(datasetName,equations))
+		#CALL CODE TO GET CUSTOM IMAGE FROM DATASET AND BIT VECTOR 
+		#SAVE IMAGE IN DATABASE
+		#SAVE DATASET IN DATABASE (OPTIONAL)
+		#SAVE IMAGE IN OUTPUT DIRECTORY
+		return json.dumps({'output':str(123),'subspace':str("123")})
+	except Exception as e:
+		flash(e)
+		datasetName=request.args.get('datasetPath')
+		return render_template('data_analysis.html',user=current_user,datasetPath=datasetName)
