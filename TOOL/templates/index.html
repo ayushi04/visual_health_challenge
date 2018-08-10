@@ -9,6 +9,15 @@ active
 {% endblock %}
 
 {% block content %}
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+{% for message in messages %}
+<div class="alert alert-danger" role="alert">
+  <p>{{ message }}</p>
+</div>
+{% endfor %}
+{% endif %}
+{% endwith %}
       <div class="row">
         <div class="col-md-4 col-sm-12">
           <div class="card" style="width: 20rem;">

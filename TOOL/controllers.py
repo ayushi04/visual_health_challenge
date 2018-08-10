@@ -117,12 +117,12 @@ def upload():
 
         download_path = 'static/uploads/' + filename
         #return render_template('success.html', download_path=download_path, user=current_user)
-        return render_template('first.html',title='visual tool',datasetPath=download_path, user=current_user)
+        return render_template('data_analysis.html',title='visual tool',datasetPath=download_path, user=current_user)
     except Exception as e:
         print(e)
         PrintException()
         flash(PrintException())
-        return render_template('data_analysis.html', user=current_user)
+        return render_template('index.html', user=current_user)
 
 @mod_controllers.route('/contact', methods=['GET'])
 def contact():

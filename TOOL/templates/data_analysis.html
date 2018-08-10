@@ -4,13 +4,36 @@
 Home
 {% endblock %}
 
+
+{% block import %}
+  <!--<link rel="shortcut icon" type="image/x-icon" href="docs/images/favicon.ico" />-->
+  <link rel="stylesheet" href="{{ url_for('static',filename='vendor/leaflet/leaflet.css') }}"/>
+  <script src="{{ url_for('static',filename='vendor/leaflet/leaflet.js') }}" ></script>
+  <script src="{{ url_for('static',filename='vendor/d3/d3.v3.js') }}"></script>
+  <script src="{{ url_for('static',filename='vendor/plotly/plotly-latest.min.js') }}"></script>
+  <script src="{{ url_for('static',filename='js/data_analysis.js') }}"></script>
+{% endblock %}
+
 {% block active_index %}
 active
 {% endblock %}
 
 {% block content %}
-<h1 class="my-4">Matrix visualization</small></h1>
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+{% for message in messages %}
+<div class="alert alert-danger" role="alert">
+  <p>{{ message }}</p>
+</div>
+{% endfor %}
+{% endif %}
+{% endwith %}
+<!--<h4>Dataset :  '{{ datasetPath }}'</h4>-->
 
+<h1 class="my-4">Matrix visualization</small></h1>
+<div class="row">
+<div id="dimlist" border="1"></div>
+</div>
 <div class="row">
 
 <div class="col-md-8">
@@ -23,13 +46,13 @@ active
     Customize bit vector
   </div>
   <div class="card-body">
-    <ul class="list-group list-group-flush">
+    <ul class="list-group list-group-flush" id="bitvector">
       <li class="list-group-item">Bit 0 : <input type="text" value=""></input></li>
       <li class="list-group-item">Bit 1 : <input type="text" value=""></input></li>
       <li class="list-group-item">Bit 2 : <input type="text" value=""></input></li>
     </ul>
     <br/>
-    <a href="#" class="btn btn-primary">Get Image</a>
+    <a href="#" class="btn btn-primary" id="goButton">Get Image</a>
   </div>
 </div>
 <!--<h3 class="my-3">Project Description</h3>
@@ -44,5 +67,14 @@ active
 </div>
 -->
 </div>
+{% endblock %}
+
+
+{% block jsimport %}
+<script>
+    var datasetPath='{{datasetPath}}';
+    dynamicallyLoadSelectList('#dimlist',datasetPath);
+    $('#gobutton').on('click',updateImage);
+</script>
 {% endblock %}
 
