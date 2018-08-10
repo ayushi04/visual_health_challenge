@@ -10,6 +10,8 @@ import config
 from mod_datacleaning import data_cleaning
 
 from mod_matrix import generateCustomMatrix as gcm
+from mod_matrix import region_label as rg
+from mod_matrix import image_module as hd
 
 import linecache
 import sys
@@ -27,17 +29,35 @@ mod_matrixcontrollers = Blueprint('matrixcontrollers', __name__)
 
 @mod_matrixcontrollers.route('/image',methods=['POST','GET'])
 def image():
-	print('----matrixcontrollers: image---')
-	try:
-		datasetName=request.args.get('datasetPath')
-		equations=request.args.get('equations')
-		print('INPUT PARAMS : datasetPath: %s, equations: %s' %(datasetName,equations))
-		#CALL CODE TO GET CUSTOM IMAGE FROM DATASET AND BIT VECTOR 
-		#SAVE IMAGE IN DATABASE
-		#SAVE DATASET IN DATABASE (OPTIONAL)
-		#SAVE IMAGE IN OUTPUT DIRECTORY
-		return json.dumps({'output':str(123),'subspace':str("123")})
-	except Exception as e:
-		flash(e)
-		datasetName=request.args.get('datasetPath')
-		return render_template('data_analysis.html',user=current_user,datasetPath=datasetName)
+    #print('----matrixcontrollers: image---')
+    #try:
+        datasetPath=request.args.get('datasetPath')
+        equations=request.args.get('equations')
+        equations=equations.split(',')
+        print('INPUT PARAMS : datasetPath: %s, equations: %s' %(datasetPath,equations))
+        inputData = pd.read_csv(filepath_or_buffer=datasetPath,sep=',')
+        #equation preprocessing module
+        
+        #CALL CODE TO GET CUSTOM IMAGE FROM DATASET AND BIT VECTOR 
+        c= gcm.generateCustomMatrix()
+        c.resetBitList()
+        for eq in equations:
+            c.appendToBitList([eq])
+        matrix,bs = c.generateCustomHeidiMatrix(inputData)
+        print('----matrix generated ---')
+        lbl=rg.regionLabelling_8(matrix)
+        print('---region labelling done ---')
+        tmp=pd.DataFrame(lbl)
+        tmp=pd.DataFrame(matrix)
+        output='static/output'
+        img,dict1=hd.generateHeidiMatrixResults_noorder_helper(matrix,bs,output,inputData,'legend_heidi')
+        print('--generated image ---')
+        #SAVE IMAGE IN DATABASE
+        #SAVE DATASET IN DATABASE (OPTIONAL)
+        #SAVE IMAGE IN OUTPUT DIRECTORY
+        return json.dumps({'output':str(123),'subspace':str("123")})
+    #except Exception as e:
+    #    print(e)
+    #    flash(e)
+    #    datasetName=request.args.get('datasetPath')
+    #    return render_template('data_analysis.html',user=current_user,datasetPath=datasetPath)

@@ -4,6 +4,12 @@ import numpy as np
 from sklearn.neighbors import NearestNeighbors
 from mod_matrix import validSyntax as vd
 
+import re
+
+
+def mysplit(mystr):
+    return re.split("([+-/*])", mystr.replace(" ", ""))
+
 #THIS CLASS IS USED TO CREATE CUSTOM HEIDI MATRIX. IT TAKES SORTED DATASET AND STRING OF 
 #CONDITIONS TO CREATE CUSTOM HEIDI MATRIX.
 class generateCustomMatrix:
@@ -52,48 +58,52 @@ class generateCustomMatrix:
         for b1 in self.bits:
             #OPTION1 : KNN(X)
             if("KNN" in b1):
-                print('b1',b1)
-                temp=self.getKNNmatrix(sorted_data,row,b1,knn)
+                print('b1',b1[0])
+                temp=self.getKNNmatrix(sorted_data,row,b1[0],knn)
                 matrix=matrix + temp*factor
                 factor=factor*2
                 bit_subspace[count]=b1
                 count=count+1
-            elif(vd.validateSyntax(b1)):
-                import re
-                ml=re.findall('[0-9.]+|.',b1)
-                print('lll',len(ml))
-                if(len(ml)==3):
-                    x=sorted_data.iloc[:,int(ml[0])].values
-                    y=sorted_data.iloc[:,int(ml[2])].values
-                    print(x.shape,y.shape,x)
-                    left=np.zeros((row,1))
-                    left[:,0]=x
-                    #left=left.transpose()
-                    left=np.repeat(left,row,axis=1)
-                    right=np.zeros((row,1))
-                    right[:,0]=y
-                    right=right.transpose()
-                    right=np.repeat(right,row,axis=0)
-                    if ml[1]=='>':
-                        temp=left>right
-                    if ml[1]=='<':
-                        temp=left<right
-                    if ml[1]=='>=':
-                        temp=left>=right
-                    if ml[1]=='<=':
-                        temp=left<=right
-                    if ml[1]=='!=':
-                        temp=left!=right
-                    if ml[1]=='==':
-                        temp=left==right
-                    #temp=[[eval(str(x[i])+ml[1]+str(y[j])) for i in range(len(x))] for j in range(len(y))]
-                    temp=np.array(temp,dtype=np.uint8)
-                    matrix=matrix + temp*factor
-                    factor=factor*2
-                    bit_subspace[count]=b1
-                    count=count+1
-                    gl=temp
-                    #print('valid')
+            #elif(vd.validateSyntax(b1)):
+            else:
+                #ml=re.findall('[0-9.]+|.',b1)
+                #print('lll',len(ml))
+                #if(len(ml)==3):
+                print(b1[0])
+                ml=mysplit(b1)
+                print(ml,'aftersplit')
+                x=sorted_data.iloc[:,int(ml[0])].values
+                y=sorted_data.iloc[:,int(ml[2])].values
+                #print(x.shape,y.shape,x)
+                left=np.zeros((row,1))
+                left[:,0]=x
+                #left=left.transpose()
+                left=np.repeat(left,row,axis=1)
+                right=np.zeros((row,1))
+                right[:,0]=y
+                right=right.transpose()
+                right=np.repeat(right,row,axis=0)
+                if ml[1]=='>':
+                    temp=left>right
+                if ml[1]=='<':
+                    temp=left<right
+                if ml[1]=='>=':
+                    temp=left>=right
+                if ml[1]=='<=':
+                    temp=left<=right
+                if ml[1]=='!=':
+                    temp=left!=right
+                if ml[1]=='==':
+                    temp=left==right
+                #temp=[[eval(str(x[i])+ml[1]+str(y[j])) for i in range(len(x))] for j in range(len(y))]
+                temp=np.array(temp,dtype=np.uint8)
+                matrix=matrix + temp*factor
+                factor=factor*2
+                bit_subspace[count]=b1
+                count=count+1
+                gl=temp
+                #print('valid')
+            '''
                 elif(len(ml)==5):
                     x=sorted_data.iloc[:,int(ml[0])].values
                     y=sorted_data.iloc[:,int(ml[2])].values
@@ -114,13 +124,14 @@ class generateCustomMatrix:
                     #print('valid')
                 else:
                     print('invalid bit vector input')
-                    return                
+                    return
             elif("" == b1):
                 factor=factor*2
                 count=count+1
             else:
                 print('invalid bit vector input')
                 return
+            '''
         return matrix,bit_subspace
 
 
