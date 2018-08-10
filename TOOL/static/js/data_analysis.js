@@ -30,7 +30,7 @@ function dynamicallyLoadSelectList(divId,datasetPath) {
   });
 }
 
-function updateImage(datasetPath) {
+function updateImage() {
   console.log('---updateImage---');
   var equations = [];
   //$(".dim:checked").each(function() {

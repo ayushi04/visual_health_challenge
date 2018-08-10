@@ -2,7 +2,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.neighbors import NearestNeighbors
-import validSyntax as vd
+from mod_matrix import validSyntax as vd
 
 #THIS CLASS IS USED TO CREATE CUSTOM HEIDI MATRIX. IT TAKES SORTED DATASET AND STRING OF 
 #CONDITIONS TO CREATE CUSTOM HEIDI MATRIX.

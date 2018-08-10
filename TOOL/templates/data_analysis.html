@@ -52,7 +52,7 @@ active
       <li class="list-group-item">Bit 2 : <input type="text" value=""></input></li>
     </ul>
     <br/>
-    <a href="#" class="btn btn-primary" id="goButton">Get Image</a>
+    <button class="btn btn-primary" id="goButton">Get Image</a>
   </div>
 </div>
 <!--<h3 class="my-3">Project Description</h3>
@@ -74,7 +74,7 @@ active
 <script>
     var datasetPath='{{datasetPath}}';
     dynamicallyLoadSelectList('#dimlist',datasetPath);
-    $('#gobutton').on('click',updateImage);
+    $('#goButton').on('click',updateImage);
 </script>
 {% endblock %}
 
