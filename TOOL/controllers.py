@@ -98,6 +98,7 @@ def upload():
                 raise ValueError(res)
             missing_val_fixed_file = data_cleaning.fix_missing(dirty_file, request.form['fix'])
             cleaned_file = data_cleaning.clean(missing_val_fixed_file)
+            describe=cleaned_file.describe()
             cleaned_file.to_csv(file_uploads_path, sep=',',index=False)
         elif (filename.rsplit('.', 1)[1].lower() == 'tsv'):
             dirty_file = pd.read_csv(file_uploads_path, sep='\t')
@@ -114,7 +115,7 @@ def upload():
             cleaned_file.to_json(file_uploads_path)
         else:
             raise ValueError('Invalid file input! Please check the input file type')
-
+        print(describe)
         download_path = 'static/uploads/' + filename
         #return render_template('success.html', download_path=download_path, user=current_user)
         return render_template('data_analysis.html',title='visual tool',datasetPath=download_path, user=current_user)

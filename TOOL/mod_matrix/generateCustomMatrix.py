@@ -8,7 +8,7 @@ import re
 
 
 def mysplit(mystr):
-    return re.split("([+-/*])", mystr.replace(" ", ""))
+    return re.split("([+-/*><])", mystr.replace(" ", ""))
 
 #THIS CLASS IS USED TO CREATE CUSTOM HEIDI MATRIX. IT TAKES SORTED DATASET AND STRING OF 
 #CONDITIONS TO CREATE CUSTOM HEIDI MATRIX.
@@ -72,17 +72,20 @@ class generateCustomMatrix:
                 print(b1[0])
                 ml=mysplit(b1)
                 print(ml,'aftersplit')
-                x=sorted_data.iloc[:,int(ml[0])].values
-                y=sorted_data.iloc[:,int(ml[2])].values
+                x=sorted_data.loc[:,ml[0]].values
                 #print(x.shape,y.shape,x)
                 left=np.zeros((row,1))
                 left[:,0]=x
                 #left=left.transpose()
                 left=np.repeat(left,row,axis=1)
-                right=np.zeros((row,1))
-                right[:,0]=y
-                right=right.transpose()
-                right=np.repeat(right,row,axis=0)
+                if(ml[2] in sorted_data.columns):
+                    y=sorted_data.loc[:,ml[2]].values
+                    right=np.zeros((row,1))
+                    right[:,0]=y
+                    right=right.transpose()
+                    right=np.repeat(right,row,axis=0)
+                else:
+                    right=int(ml[2])
                 if ml[1]=='>':
                     temp=left>right
                 if ml[1]=='<':
