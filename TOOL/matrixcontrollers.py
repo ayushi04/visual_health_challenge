@@ -28,6 +28,45 @@ def PrintException():
 
 mod_matrixcontrollers = Blueprint('matrixcontrollers', __name__)
 
+@mod_matrixcontrollers.route('/data_filter',methods=['POST','GET'])
+def data_filter():
+    print('-----data_filter------')
+    if request.method == 'POST':
+        try:
+            datasetPath=request.form['datasetPath']
+            #user = User(request.form['name'], request.form['phone'], generate_password_hash(request.form['password'], method='sha256'), request.form['email'])
+            print(datasetPath)
+            gender=request.form.getlist('gender')
+            los=request.form.getlist('los')
+            age=request.form.getlist('age')
+            icd9=request.form.getlist('icd9');
+            print('gender: %s, los : %s, age : %s, icd9 category code : %s' %(gender,los,age,icd9))
+            x=pd.read_csv(filepath_or_buffer=datasetPath, sep=',',index_col='id')
+            print(x.shape)
+            if 'ALL' not in gender:
+                x=x[x.GENDER.isin(gender)]
+            if 'ALL' not in los:
+                x=x[x.LOS.isin(los)]
+            #if 'ALL' not in age:
+            #    x=x[x.AGE.isin(age)]
+            if 'ALL' not in icd9:
+                x=x[x.ICD9_CATEGORY.isin(icd9)]
+            print(x.shape)
+            filename='filteredData.csv'
+            file_uploads_path = os.path.join(config.UPLOADS_DIR, filename)
+            x.to_csv(file_uploads_path, sep=',',index=False)
+            datasetPath = 'static/uploads/' + filename
+            #db.session.add(user)
+            #db.session.commit()
+            return render_template('data_analysis.html',title='visual tool',datasetPath=datasetPath, user=current_user)
+            return "123"
+            #return redirect(url_for('matrixcontrollers.image'))
+        except Exception as e:
+            print(e)
+            flash('Wrong inputs, please check your input and try again.')
+            return render_template('data_filter.html', user=current_user, datasetPath='static/uploads/V3_ICU_INPUT_NAME_PATIENT_ICD9_less.csv')
+
+
 @mod_matrixcontrollers.route('/image',methods=['POST','GET'])
 def image():
     #print('----matrixcontrollers: image---')
