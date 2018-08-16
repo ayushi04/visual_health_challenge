@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Home
+{% endblock %}
+
+
+{% block import %}
+  <!--<link rel="shortcut icon" type="image/x-icon" href="docs/images/favicon.ico" />-->
+  <link rel="stylesheet" href="{{ url_for('static',filename='vendor/leaflet/leaflet.css') }}"/>
+  <script src="{{ url_for('static',filename='vendor/leaflet/leaflet.js') }}" ></script>
+  <script src="{{ url_for('static',filename='vendor/d3/d3.v3.js') }}"></script>
+  <script src="{{ url_for('static',filename='vendor/plotly/plotly-latest.min.js') }}"></script>
+  <script src="{{ url_for('static',filename='js/data_analysis.js') }}"></script>
+{% endblock %}
+
+{% block active_index %}
+active
+{% endblock %}
+
+{% block content %}
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+{% for message in messages %}
+<div class="alert alert-danger" role="alert">
+  <p>{{ message }}</p>
+</div>
+{% endfor %}
+{% endif %}
+{% endwith %}
+<!--<h4>Dataset :  '{{ datasetPath }}'</h4>-->
+
+<h1 class="my-4">Data selection</small></h1>
+<div class="row">
+<div id="dimlist" border="1"></div>
+</div>
+<div class="row">
+<form action="{{ url_for('matrixcontrollers.data_filter') }}" method="POST">
+<input type="hidden" value='{{ datasetPath }}' name='datasetPath'/>
+<div class="col-md-12 row">
+
+  <div class="col-md-3">
+    <div class="card">
+      <div class="card-header">
+        Gender
+      </div>
+      <div class="card-body">
+        <label class="checkbox-inline"><input type="checkbox" value="ALL" class="gender" name="gender">ALL</label><label class="checkbox-inline"><input type="checkbox" value="M" class="gender" name="gender">Male</label>
+        <label class="checkbox-inline"><input type="checkbox" value="F" class="gender" name="gender">Female</label>
+      </div>
+    </div>
+    <br/>
+    <div class="card">
+      <div class="card-header">
+        Length of Stay in ICU (in days)
+      </div>
+      <div class="card-body">
+        <div class="checkbox">
+        <label><input type="checkbox" value="ALL" class="los"  name="los">ALL</label>
+        </div>
+        <div class="checkbox">
+        <label><input type="checkbox" value="0-3.6" class="los"  name="los">0-3.6</label>
+        </div>
+        <div class="checkbox">
+        <label><input type="checkbox" value="3.7-7.2" class="los" name="los">3.7-7.2</label>
+        </div>
+        <div class="checkbox">
+        <label><input type="checkbox" value="7.3-10.8" class="los" name="los">7.3-10.8</label>
+        </div>
+        <div class="checkbox">
+        <label ><input type="checkbox" value="10.9-14.4" class="los" name="los">10.9-14.4</label>
+        </div>
+        <div class="checkbox">
+        <label ><input type="checkbox" value="14.5-18" class="los" name="los">14.5-18</label>
+        </div>
+        <div class="checkbox">
+        <label ><input type="checkbox" value="18.1-21.6" class="los" name="los">18.1-21.6</label>
+        </div>
+        <div class="checkbox">
+        <label ><input type="checkbox" value="21.7-25.2" class="los" name="los">21.7-25.2</label>
+        </div>
+        <div class="checkbox">
+        <label ><input type="checkbox" value="25.3-28.8" class="los" name="los">25.3-28.8</label>
+        </div>
+        <div class="checkbox">
+        <label ><input type="checkbox" value="28.9-32.4" class="los" name="los">28.9-32.4</label>
+        </div>
+        <div class="checkbox">
+        <label ><input type="checkbox" value="32.5+" class="los" name="los">32.5+</label>
+        </div>
+      </div>
+    </div>
+
+    <br/>
+  </div>
+
+
+  <div class="col-md-7">
+    <div class="card">
+      <div class="card-header">
+        Age
+      </div>
+      <div class="card-body">
+        <label class="checkbox-inline"><input type="checkbox" value="ALL" class="age" name="age"> ALL</label>
+        <label class="checkbox-inline"><input type="checkbox" value="0-15" class="age" name="age"> less than 16</label>
+        <label class="checkbox-inline"><input type="checkbox" value="16-18" class="age" name="age">16-18</label>
+        <label class="checkbox-inline"><input type="checkbox" value="19-27" class="age" name="age">19-27</label>
+        <label class="checkbox-inline"><input type="checkbox" value="28-36" class="age" name="age">28-36</label>
+        <label class="checkbox-inline"><input type="checkbox" value="37-45" class="age" name="age">37-45</label>
+        <label class="checkbox-inline"><input type="checkbox" value="46-54" class="age" name="age">46-54</label>
+        <label class="checkbox-inline"><input type="checkbox" value="64-72" class="age" name="age">64-72</label>
+        <label class="checkbox-inline"><input type="checkbox" value="73-81" class="age" name="age">73-81</label>
+        <label class="checkbox-inline"><input type="checkbox" value="82-90" class="age" name="age">82-90</label>
+        <label class="checkbox-inline"><input type="checkbox" value="91+" class="age" name="age">91+</label>
+      </div>
+    </div> <!--card-->
+
+    <br/>
+
+    <div class="card">
+      <div class="card-header">
+        ICD9 category
+      </div>
+      <div class="card-body">
+        <div class="checkbox"><label><input type="checkbox" value="ALL" class="icd9"  name="icd9">ALL</label></div>
+        <div class="checkbox"><label><input type="checkbox" value="1" class="icd9"  name="icd9">infectious and parasitic diseases</label></div>
+        <div class="checkbox"><label><input type="checkbox" value="2" class="icd9" name="icd9">neoplasms</label></div>
+        <div class="checkbox"><label><input type="checkbox" value="3" class="icd9" name="icd9">endocrine, nutritional and metabolic diseases, and immunity disorders</label></div>
+        <div class="checkbox"><label><input type="checkbox" value="4" class="icd9" name="icd9">diseases of the blood and blood-forming organs</label></div>
+        <div class="checkbox"><label><input type="checkbox" value="5" class="icd9" name="icd9">mental disorders</label></div>
+        <div class="checkbox"><label><input type="checkbox" value="6" class="icd9" name="icd9">diseases of the nervous system and sense organs</label></div>
+        <div class="checkbox"><label><input type="checkbox" value="7" class="icd9" name="icd9">diseases of the circulatory system</label></div>
+        <div class="checkbox"><label><input type="checkbox" value="8" class="icd9" name="icd9">diseases of the respiratory system</label></div>
+        <div class="checkbox"><label><input type="checkbox" value="9" class="icd9" name="icd9">diseases of the digestive system</label></div>
+        <div class="checkbox"><label><input type="checkbox" value="10" class="icd9" name="icd9">diseases of the genitourinary system</label></div>
+        <div class="checkbox"><label><input type="checkbox" value="11" class="icd9" name="icd9">complications of pregnancy, childbirth, and the puerperium</label></div>
+        <div class="checkbox"><label><input type="checkbox" value="12" class="icd9" name="icd9">diseases of the skin and subcutaneous tissue</label></div>
+        <div class="checkbox"><label><input type="checkbox" value="13" class="icd9" name="icd9">diseases of the musculoskeletal system and connective tissue</label></div>
+        <div class="checkbox"><label><input type="checkbox" value="14" class="icd9" name="icd9">congenital anomalies</label></div>
+        <div class="checkbox"><label><input type="checkbox" value="15" class="icd9" name="icd9">certain conditions originating in the perinatal period</label></div>
+        <div class="checkbox"><label><input type="checkbox" value="16" class="icd9" name="icd9"> symptoms, signs, and ill-defined conditions</label></div>
+        <div class="checkbox"><label><input type="checkbox" value="17" class="icd9" name="icd9">injury and poisoning</label></div>
+      </div>
+    </div> <!--card-->
+    
+  </div>
+
+ 
+
+</div>
+
+<button type="submit" class="btn btn-success">Submit</button>
+</form>
+</div>
+{% endblock %}
+
+
+{% block jsimport %}
+<script>
+    var datasetPath='{{datasetPath}}';
+    //dynamicallyLoadSelectList('#dimlist',datasetPath);
+    $('#goButton').on('click',nextPage);
+
+    function nextPage() {
+      var checkedValue = $('.gender:checked').val();
+      var gender = [];
+      $(".gender:checked").each(function() {
+        gender.push($(this).val());
+      });
+     var icd9 = [];
+      $(".icd9:checked").each(function() {
+        icd9.push($(this).val());
+      });
+      var age = [];
+      $(".age:checked").each(function() {
+        age.push($(this).val());
+      });
+      var los = [];
+      $(".los:checked").each(function() {
+        los.push($(this).val());
+      });
+      console.log(gender,icd9,age,los);
+       
+    }
+</script>
+{% endblock %}
+
