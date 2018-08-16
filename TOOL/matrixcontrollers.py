@@ -41,7 +41,7 @@ def data_filter():
             age=request.form.getlist('age')
             icd9=request.form.getlist('icd9');
             print('gender: %s, los : %s, age : %s, icd9 category code : %s' %(gender,los,age,icd9))
-            x=pd.read_csv(filepath_or_buffer=datasetPath, sep=',',index_col='id')
+            x=pd.read_csv(filepath_or_buffer=datasetPath, sep=',',index_col='id', parse_dates=True)
             print(x.shape)
             if 'ALL' not in gender:
                 x=x[x.GENDER.isin(gender)]
@@ -54,7 +54,7 @@ def data_filter():
             print(x.shape)
             filename='filteredData.csv'
             file_uploads_path = os.path.join(config.UPLOADS_DIR, filename)
-            x.to_csv(file_uploads_path, sep=',',index=False)
+            x.to_csv(file_uploads_path, sep=',',index=True)
             datasetPath = 'static/uploads/' + filename
             #db.session.add(user)
             #db.session.commit()
@@ -73,17 +73,19 @@ def image():
     #try:
         datasetPath=request.args.get('datasetPath')
         equations=request.args.get('equations')
-        equations=equations.split(',')
+        equations=equations.split(':')
         print('INPUT PARAMS : datasetPath: %s, equations: %s' %(datasetPath,equations))
-        inputData = pd.read_csv(filepath_or_buffer=datasetPath,sep=',',index_col='id')
-        
+        inputData = pd.read_csv(filepath_or_buffer=datasetPath,sep=',',index_col='id', parse_dates=True)
+        print(inputData.dtypes)
 
         #FILTEREDDATA
         order_dim=['classLabel']
+        datelist=['DOB','DOD','DOD_HOSP','DOD_SSN']
         for eq in equations:
             t=gcm.mysplit(eq)
+            print(t)
             for i in t:
-                if(i in inputData.columns and i not in order_dim):
+                if(i in inputData.columns and i not in order_dim and i not in datelist):
                     order_dim.append(i)
         print('------order_dim-----',order_dim)
         filtered_data = inputData.loc[:,order_dim]
@@ -106,7 +108,7 @@ def image():
             sorting_order=sorted_data.index
             inputData=inputData.reindex(sorting_order)
 
-
+        print('----succesfully ordered points----')
         #CALL CODE TO GET CUSTOM IMAGE FROM DATASET AND BIT VECTOR 
         c= gcm.generateCustomMatrix()
         c.resetBitList()

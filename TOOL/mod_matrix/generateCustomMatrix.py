@@ -8,6 +8,9 @@ import re
 
 
 def mysplit(mystr):
+    list_patterns="(\+|\-|/|\*|==|!=|>=|<=|>|<|\sIN\s)"
+    mylist = re.split(list_patterns,mystr)
+    return mylist
     return re.split("([+-/*><])", mystr.replace(" ", ""))
 
 #THIS CLASS IS USED TO CREATE CUSTOM HEIDI MATRIX. IT TAKES SORTED DATASET AND STRING OF 
@@ -72,33 +75,54 @@ class generateCustomMatrix:
                 print(b1[0])
                 ml=mysplit(b1)
                 print(ml,'aftersplit')
-                x=sorted_data.loc[:,ml[0]].values
-                #print(x.shape,y.shape,x)
-                left=np.zeros((row,1))
-                left[:,0]=x
-                #left=left.transpose()
-                left=np.repeat(left,row,axis=1)
-                if(ml[2] in sorted_data.columns):
-                    y=sorted_data.loc[:,ml[2]].values
-                    right=np.zeros((row,1))
-                    right[:,0]=y
-                    right=right.transpose()
-                    right=np.repeat(right,row,axis=0)
+                if(ml[1]==' IN '):
+                    print('--------IN--------')
+                    x=ml[2][1:-1].split(',') #GETTING THE LIST WITHIN () EG : INPUTS IN (Insulin, Sodium Bicarbonate)
+                    print(x[0])
+                    t=[False for i in range(sorted_data.shape[0])]
+                    for i in x:
+                        t=t | sorted_data['LABEL'].str.contains(i)
+                    temp=np.zeros((row,1))
+                    temp[:,0]=t
+                    temp=np.repeat(temp,row,axis=1)
+                    #temp2=temp.transpose()
+                    #temp =np.logical_or(temp,temp2)
+                    #print(temp)
+                    #continue
                 else:
-                    right=int(ml[2])
-                if ml[1]=='>':
-                    temp=left>right
-                if ml[1]=='<':
-                    temp=left<right
-                if ml[1]=='>=':
-                    temp=left>=right
-                if ml[1]=='<=':
-                    temp=left<=right
-                if ml[1]=='!=':
-                    temp=left!=right
-                if ml[1]=='==':
-                    temp=left==right
-                #temp=[[eval(str(x[i])+ml[1]+str(y[j])) for i in range(len(x))] for j in range(len(y))]
+                    x=sorted_data.loc[:,ml[0]].values
+                    #print(x.shape,y.shape,x)
+                    left=np.zeros((row,1))
+                    #datelist=['DOB','DOD','DOD_HOSP','DOD_SSN']
+                    left[:,0]=x
+                    #left=left.transpose()
+                    left=np.repeat(left,row,axis=1)
+                    flag=0
+                    if(ml[2] in sorted_data.columns):
+                        y=sorted_data.loc[:,ml[2]].values
+                        right=np.zeros((row,1))
+                        right[:,0]=y
+                        right=right.transpose()
+                        right=np.repeat(right,row,axis=0)
+                    else:
+                        right=int(ml[2])
+                        flag=1
+                    if ml[1]=='>':
+                        temp=left>right
+                    if ml[1]=='<':
+                        temp=left<right
+                    if ml[1]=='>=':
+                        temp=left>=right
+                    if ml[1]=='<=':
+                        temp=left<=right
+                    if ml[1]=='!=':
+                        temp=left!=right
+                    if ml[1]=='==':
+                        temp=left==right
+                #if(flag==1):
+                #    temp2=temp.transpose()
+                #    temp =np.logical_or(temp,temp2)
+                
                 temp=np.array(temp,dtype=np.uint8)
                 matrix=matrix + temp*factor
                 factor=factor*2

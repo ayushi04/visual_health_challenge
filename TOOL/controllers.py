@@ -92,7 +92,7 @@ def upload():
         file_static_path = os.path.join(file_static_path, filename)
         file.save(file_uploads_path)
         if (filename.rsplit('.', 1)[1].lower() == 'csv'):
-            dirty_file = pd.read_csv(file_uploads_path, sep=',')
+            dirty_file = pd.read_csv(file_uploads_path, sep=',', parse_dates=True)
             res = data_cleaning.id_classLabel_check(dirty_file)
             if(res!=True):
                 raise ValueError(res)

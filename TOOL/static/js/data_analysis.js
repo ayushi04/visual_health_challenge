@@ -130,7 +130,7 @@ function updateImage() {
     if(inputs[i].value!='')
       equations.push(inputs[i].value);
   }
-  equations = equations.join(',');
+  equations = equations.join(':');
   $('#loading').html("<img src={{ url_for('static',filename='loading.gif') }}> loading...");
   console.log(equations);
   $.ajax({
