@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-
+import datetime
 
 def fix_missing(file, fix_option):
     # file.rename(columns=lambda x: x.strip(), inplace=True)
@@ -43,6 +43,21 @@ def clean(file_clean):
             newdf[c]=file_clean[c].astype('category')
             newdf[[c]]=newdf[[c]].apply(lambda x:x.cat.codes)   
 
+    return newdf
+
+def handleDate(file_clean,datelist):
+    newdf=file_clean
+    for c in datelist:
+        print('--',c)
+        newdf[c]=newdf[c].replace('0',pd.NaT)
+        newdf[c] = pd.to_datetime(newdf[c], errors='ignore')
+        #newdf[c].dtype=datetime.datetime
+    #print(newdf['DOD_HOSP'])
+    #newdf=newdf.infer_objects()
+    #print(list(newdf.dtypes))
+    #newdf.dtypes=[int,int,int,float,int,str,str,datetime.datetime,datetime.datetime,datetime.datetime,str,int]
+    #for c in datelist:
+    #    if(datelist)
     return newdf
 
 def id_classLabel_check(file):

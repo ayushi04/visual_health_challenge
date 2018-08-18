@@ -96,10 +96,16 @@ def upload():
             res = data_cleaning.id_classLabel_check(dirty_file)
             if(res!=True):
                 raise ValueError(res)
+            print('shape of dirty file:',dirty_file.shape)
             missing_val_fixed_file = data_cleaning.fix_missing(dirty_file, request.form['fix'])
+            print('shape of missing value fixed file:',missing_val_fixed_file.shape)
+            datelist=['DOB','DOD','DOD_HOSP','DOD_SSN']
+            cleaned_file=data_cleaning.handleDate(missing_val_fixed_file,datelist)
+            print('shape of cleaned file :',cleaned_file.shape)
             #cleaned_file = data_cleaning.clean(missing_val_fixed_file)
-            cleaned_file = missing_val_fixed_file
+            #cleaned_file = missing_val_fixed_file
             describe=cleaned_file.describe()
+            print(cleaned_file.dtypes)
             cleaned_file.to_csv(file_uploads_path, sep=',',index=False)
         elif (filename.rsplit('.', 1)[1].lower() == 'tsv'):
             dirty_file = pd.read_csv(file_uploads_path, sep='\t')
@@ -119,6 +125,8 @@ def upload():
         print(describe)
         download_path = 'static/uploads/' + filename
         #return render_template('success.html', download_path=download_path, user=current_user)
+
+    
         return render_template('data_filter.html',title='visual tool',datasetPath=download_path, user=current_user)
     except Exception as e:
         print(e)

@@ -8,11 +8,15 @@ import os
 import pandas as pd
 import config
 from mod_datacleaning import data_cleaning
+import heidicontroller_helper as hch
 
 from mod_matrix import generateCustomMatrix as gcm
 from mod_matrix import region_label as rg
 from mod_matrix import image_module as hd
 from mod_matrix import orderPoints as op
+
+from bokeh.resources import CDN
+from bokeh.embed import file_html
 
 import linecache
 import sys
@@ -58,6 +62,9 @@ def data_filter():
             datasetPath = 'static/uploads/' + filename
             #db.session.add(user)
             #db.session.commit()
+            #GENERATING META-INFORMATION OF DATA
+            plot=hch.getMetaInfo(inputData)
+            #html=file_html(plot,CDN,"my plot")
             return render_template('data_analysis.html',title='visual tool',datasetPath=datasetPath, user=current_user)
             return "123"
             #return redirect(url_for('matrixcontrollers.image'))
@@ -69,23 +76,25 @@ def data_filter():
 
 @mod_matrixcontrollers.route('/image',methods=['POST','GET'])
 def image():
-    #print('----matrixcontrollers: image---')
-    #try:
+    print('----matrixcontrollers: image---')
+    try:
         datasetPath=request.args.get('datasetPath')
         equations=request.args.get('equations')
         equations=equations.split(':')
         print('INPUT PARAMS : datasetPath: %s, equations: %s' %(datasetPath,equations))
         inputData = pd.read_csv(filepath_or_buffer=datasetPath,sep=',',index_col='id', parse_dates=True)
-        print(inputData.dtypes)
-
+        #print(inputData.dtypes)
+        
         #FILTEREDDATA
         order_dim=['classLabel']
         datelist=['DOB','DOD','DOD_HOSP','DOD_SSN']
+        for c in datelist:
+            inputData[c]=pd.to_datetime(inputData[c], errors='ignore')
         for eq in equations:
             t=gcm.mysplit(eq)
-            print(t)
+            #print(t)
             for i in t:
-                if(i in inputData.columns and i not in order_dim and i not in datelist):
+                if(i in inputData.columns and i not in order_dim and i not in datelist and i !='ICD9_CATEGORY' and i!='INPUTS'):
                     order_dim.append(i)
         print('------order_dim-----',order_dim)
         filtered_data = inputData.loc[:,order_dim]
@@ -114,9 +123,9 @@ def image():
         c.resetBitList()
         for eq in equations:
             c.appendToBitList([eq])
-        print(inputData.shape)
+        print("shape of inputData to the matrix:", inputData.shape)
         matrix,bs = c.generateCustomHeidiMatrix(inputData)
-        print(matrix.shape)
+        print("shape of matrix generated:",matrix.shape)
         print('----matrix generated ---')
         #lbl=rg.regionLabelling_8(matrix)
         #print('---region labelling done ---')
@@ -129,8 +138,8 @@ def image():
         #SAVE DATASET IN DATABASE (OPTIONAL)
         #SAVE IMAGE IN OUTPUT DIRECTORY
         return json.dumps({'output':str(123),'subspace':str("123")})
-    #except Exception as e:
-    #    print(e)
-    #    flash(e)
-    #    datasetName=request.args.get('datasetPath')
-    #    return render_template('data_analysis.html',user=current_user,datasetPath=datasetPath)
+    except Exception as e:
+        print(e)
+        flash(e)
+        datasetName=request.args.get('datasetPath')
+        return render_template('data_analysis.html',user=current_user,datasetPath=datasetPath)

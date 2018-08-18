@@ -61,7 +61,7 @@ class generateCustomMatrix:
         for b1 in self.bits:
             #OPTION1 : KNN(X)
             if("KNN" in b1):
-                print('b1',b1[0])
+                #print('b1',b1[0])
                 temp=self.getKNNmatrix(sorted_data,row,b1[0],knn)
                 matrix=matrix + temp*factor
                 factor=factor*2
@@ -72,31 +72,43 @@ class generateCustomMatrix:
                 #ml=re.findall('[0-9.]+|.',b1)
                 #print('lll',len(ml))
                 #if(len(ml)==3):
-                print(b1[0])
+                #print(b1[0])
                 ml=mysplit(b1)
                 print(ml,'aftersplit')
+                datelist=['DOB','DOD','DOD_HOSP','DOD_SSN']
                 if(ml[1]==' IN '):
                     print('--------IN--------')
                     x=ml[2][1:-1].split(',') #GETTING THE LIST WITHIN () EG : INPUTS IN (Insulin, Sodium Bicarbonate)
-                    print(x[0])
+                    #print(x[0])
+                    if(ml[0]=='INPUTS'):
+                        lbl='LABEL'
+                    elif(ml[0]=='ICD9_CATEGORY'):
+                        lbl='ICD9_CATEGORY'
                     t=[False for i in range(sorted_data.shape[0])]
                     for i in x:
-                        t=t | sorted_data['LABEL'].str.contains(i)
+                        t=t | sorted_data[lbl].str.contains(i)
                     temp=np.zeros((row,1))
                     temp[:,0]=t
                     temp=np.repeat(temp,row,axis=1)
-                    #temp2=temp.transpose()
-                    #temp =np.logical_or(temp,temp2)
+                    temp2=temp.transpose()
+                    temp =np.logical_and(temp,temp2)
                     #print(temp)
                     #continue
+                elif(ml[0] in datelist and ml[2]=='NULL'):
+                    print('-----------datetime-------')
+                    t=sorted_data[ml[0]].isnull()
+                    temp=np.zeros((row,1))
+                    temp[:,0]=t
+                    temp=np.repeat(temp,row,axis=1)
                 else:
+                    print('------else-----------')
                     x=sorted_data.loc[:,ml[0]].values
-                    #print(x.shape,y.shape,x)
                     left=np.zeros((row,1))
                     #datelist=['DOB','DOD','DOD_HOSP','DOD_SSN']
                     left[:,0]=x
                     #left=left.transpose()
                     left=np.repeat(left,row,axis=1)
+                    #print(left)
                     flag=0
                     if(ml[2] in sorted_data.columns):
                         y=sorted_data.loc[:,ml[2]].values
@@ -105,7 +117,9 @@ class generateCustomMatrix:
                         right=right.transpose()
                         right=np.repeat(right,row,axis=0)
                     else:
-                        right=int(ml[2])
+                        if ml[2]!='NULL':
+                            right=int(ml[2])
+                        else: right=''
                         flag=1
                     if ml[1]=='>':
                         temp=left>right
@@ -118,11 +132,12 @@ class generateCustomMatrix:
                     if ml[1]=='!=':
                         temp=left!=right
                     if ml[1]=='==':
+                        #print('------------------')
                         temp=left==right
-                #if(flag==1):
-                #    temp2=temp.transpose()
-                #    temp =np.logical_or(temp,temp2)
-                
+                    if(flag==1):
+                        temp2=temp.transpose()
+                        temp =np.logical_and(temp,temp2)
+                    
                 temp=np.array(temp,dtype=np.uint8)
                 matrix=matrix + temp*factor
                 factor=factor*2
