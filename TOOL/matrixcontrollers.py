@@ -17,7 +17,7 @@ from mod_matrix import orderPoints as op
 
 from bokeh.resources import CDN
 from bokeh.embed import file_html
-
+from bokeh.embed import components
 import linecache
 import sys
 def PrintException():
@@ -36,7 +36,7 @@ mod_matrixcontrollers = Blueprint('matrixcontrollers', __name__)
 def data_filter():
     print('-----data_filter------')
     if request.method == 'POST':
-        try:
+        #try:
             datasetPath=request.form['datasetPath']
             #user = User(request.form['name'], request.form['phone'], generate_password_hash(request.form['password'], method='sha256'), request.form['email'])
             print(datasetPath)
@@ -63,15 +63,30 @@ def data_filter():
             #db.session.add(user)
             #db.session.commit()
             #GENERATING META-INFORMATION OF DATA
-            plot=hch.getMetaInfo(inputData)
-            #html=file_html(plot,CDN,"my plot")
+            plot=hch.getMetaInfo(x)
+            html=file_html(plot,CDN,"my plot")
+            '''
+            script, div = components(plot)
+            file = open("static/output/myscript.js","w") 
+            file.write(script)
+            file.close()
+            file = open('static/output/myhtml.html','w')
+            file.write(div)
+            file.close()
+            '''
+            return html
+            file = open("static/output/myhtml.html","w") 
+            file.write(html)
+            file.close()
+            
+            #print(script,div)
             return render_template('data_analysis.html',title='visual tool',datasetPath=datasetPath, user=current_user)
             return "123"
             #return redirect(url_for('matrixcontrollers.image'))
-        except Exception as e:
-            print(e)
-            flash('Wrong inputs, please check your input and try again.')
-            return render_template('data_filter.html', user=current_user, datasetPath='static/uploads/V3_ICU_INPUT_NAME_PATIENT_ICD9_less.csv')
+        #except Exception as e:
+        #    print(e)
+        #    flash('Wrong inputs, please check your input and try again.')
+        #    return render_template('data_filter.html', user=current_user, datasetPath='static/uploads/V3_ICU_INPUT_NAME_PATIENT_ICD9_less.csv')
 
 
 @mod_matrixcontrollers.route('/image',methods=['POST','GET'])
